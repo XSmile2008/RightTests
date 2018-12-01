@@ -8,8 +8,9 @@ import androidx.annotation.StringRes
 import com.xsmile2008.righttests.R
 import retrofit2.HttpException
 import javax.inject.Inject
+import javax.inject.Singleton
 
-
+@Singleton
 class MessageUtils @Inject constructor(private val context: Context) {
 
     @JvmOverloads

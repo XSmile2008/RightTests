@@ -27,6 +27,13 @@ class ViewModelFactory @Inject constructor(
                     messageUtils = messageUtils
             ) as T
 
+        modelClass.isAssignableFrom(LocationViewModel::class.java) ->
+            LocationViewModel(
+                    application = application,
+                    forecastRepository = forecastRepository,
+                    messageUtils = messageUtils
+            ) as T
+
         else -> throw IllegalArgumentException()
     }
 }

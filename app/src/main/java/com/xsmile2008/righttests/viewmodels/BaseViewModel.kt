@@ -20,8 +20,9 @@ abstract class BaseViewModel(
 
     //region LiveData
 
-    private val _viewAction = SingleLiveEvent<ViewAction>()
-    val viewAction = SingleLiveEvent<ViewAction>()
+    @Suppress("PropertyName")
+    protected val _viewAction = SingleLiveEvent<ViewAction>()
+    val viewAction get() = _viewAction
 
     @Suppress("MemberVisibilityCanBePrivate", "PropertyName")
     protected val _showSpinner = MutableLiveData<Boolean>()

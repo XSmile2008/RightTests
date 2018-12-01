@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">RightTests</string>
     <string name="something_was_wrong">Something was wrong</string>
+    <string name="error_empty_location">Location can not be empty</string>
+    <string name="location">Location</string>
+    <string name="change_location">Change location</string>
+    <string name="save">Save</string>
 </resources>

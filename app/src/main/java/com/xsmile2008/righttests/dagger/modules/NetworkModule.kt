@@ -1,6 +1,7 @@
 package com.xsmile2008.righttests.dagger.modules
 
 import android.app.Application
+import com.readystatesoftware.chuck.ChuckInterceptor
 import com.squareup.moshi.Moshi
 import com.xsmile2008.righttests.BuildConfig
 import com.xsmile2008.righttests.network.ApiClient
@@ -43,7 +44,7 @@ internal class NetworkModule {
                 .protocols(listOf(Protocol.HTTP_1_1))
                 .addInterceptor(AuthInterceptor())
                 .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
-//                .addInterceptor(ChuckInterceptor(application))
+                .addInterceptor(ChuckInterceptor(application))
                 .build()
     }
 }
