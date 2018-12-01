@@ -5,6 +5,7 @@ buildscript {
     ext.dagger_version = '2.16'
     ext.retrofit_version = '2.4.0'
     ext.okHttpVersion = '3.11.0'
+    ext.lifecycleVersion = '2.0.0'
 
     repositories {
         google()

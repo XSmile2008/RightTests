@@ -4,12 +4,18 @@ import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import android.preference.PreferenceManager
+import com.squareup.moshi.Moshi
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
 
 @Module
 class SystemModule(val application: Application) {
+
+    companion object {
+
+        val moshi: Moshi = Moshi.Builder().build()
+    }
 
     @Provides
     @Singleton
@@ -28,4 +34,8 @@ class SystemModule(val application: Application) {
     internal fun provideDefaultSharedPreferences(): SharedPreferences {
         return PreferenceManager.getDefaultSharedPreferences(application)
     }
+
+    @Provides
+    @Singleton
+    internal fun provideMoshi(): Moshi = moshi
 }

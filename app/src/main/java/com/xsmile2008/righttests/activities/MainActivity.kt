@@ -1,10 +1,12 @@
 package com.xsmile2008.righttests.activities
 
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
 import com.xsmile2008.righttests.R
+import com.xsmile2008.righttests.viewmodels.MainViewModel
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : BaseActivity() {
+
+    override val viewModel: MainViewModel by viewModelDelegate()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

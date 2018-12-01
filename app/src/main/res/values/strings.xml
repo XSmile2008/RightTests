@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">RightTests</string>
+    <string name="something_was_wrong">Something was wrong</string>
 </resources>
