@@ -6,6 +6,7 @@ import android.content.Intent
 import androidx.annotation.MainThread
 import androidx.lifecycle.*
 import com.xsmile2008.righttests.activities.LocationActivity
+import com.xsmile2008.righttests.annotations.OpenClass
 import com.xsmile2008.righttests.livedata.ViewAction
 import com.xsmile2008.righttests.network.responses.WeatherResponse
 import com.xsmile2008.righttests.repositories.ForecastRepository
@@ -14,6 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+@OpenClass
 class MainViewModel(
         application: Application,
         private val forecastRepository: ForecastRepository,
@@ -41,6 +43,9 @@ class MainViewModel(
                 _weatherData.value = weatherResponse
             }
         } catch (e: Exception) {
+            withContext(Dispatchers.Main) {
+                _weatherData.value = null
+            }
             messageUtils.showError(e)
         }
         withContext(Dispatchers.Main) {

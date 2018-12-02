@@ -10,7 +10,7 @@ import dagger.Provides
 import javax.inject.Singleton
 
 @Module
-class SystemModule(val application: Application) {
+class SystemModule(private val application: Application) {
 
     companion object {
 

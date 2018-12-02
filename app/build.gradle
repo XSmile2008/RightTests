@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlin-allopen'
 
 android {
     compileSdkVersion 28
@@ -13,9 +14,11 @@ android {
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
+        //TODO: use correct API key
         buildConfigField 'String', 'BASE_URL', '"https://openweathermap.org/data/2.5/"'
         buildConfigField 'String', 'API_KEY', '"b6907d289e10d714a6e88b30761fae22"'
-//TODO: use correct API key
+
+        testInstrumentationRunner "com.xsmile2008.righttests.MockTestRunner"
     }
     buildTypes {
         release {
@@ -41,6 +44,11 @@ dependencies {
     //Dagger
     implementation "com.google.dagger:dagger:$dagger_version"
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
+    kaptAndroidTest "com.google.dagger:dagger-compiler:$dagger_version"
+
+    //Moshi
+    implementation("com.squareup.moshi:moshi:1.8.0")
+    kapt("com.squareup.moshi:moshi-kotlin-codegen:1.8.0")
 
     //Retrofit
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
@@ -53,6 +61,31 @@ dependencies {
 
     //Tests
     testImplementation 'junit:junit:4.12'
+
     androidTestImplementation 'androidx.test:runner:1.1.1-alpha01'
+    androidTestImplementation 'androidx.test:rules:1.1.1-alpha01'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1-alpha01'
+    androidTestImplementation 'androidx.test.espresso:espresso-intents:3.1.1-alpha01'
+
+    testImplementation "androidx.arch.core:core-testing:$lifecycleVersion"
+
+    testImplementation 'org.mockito:mockito-android:2.23.4'
+    androidTestImplementation 'org.mockito:mockito-android:2.23.4'
+    androidTestImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.0.0"
+}
+
+allOpen {
+    annotation("com.xsmile2008.righttests.annotations.OpenClass")
+}
+
+// Turn on logging for all tests, filter to show failures/skips only
+tasks.withType(Test) {
+    testLogging {
+        exceptionFormat "full"
+        showCauses true
+        showExceptions true
+        showStackTraces true
+        showStandardStreams true
+        events "failed", "skipped"
+    }
 }

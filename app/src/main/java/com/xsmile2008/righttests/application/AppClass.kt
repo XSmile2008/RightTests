@@ -5,7 +5,7 @@ import com.xsmile2008.righttests.dagger.components.AppComponent
 import com.xsmile2008.righttests.dagger.components.DaggerAppComponent
 import com.xsmile2008.righttests.dagger.modules.SystemModule
 
-class AppClass : Application() {
+open class AppClass : Application() {
 
     companion object {
 
@@ -15,10 +15,10 @@ class AppClass : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        setupDagger()
+        component = buildDaggerComponent()
     }
 
-    private fun setupDagger() {
-        component = DaggerAppComponent.builder().systemModule(SystemModule(this)).build()
+    protected open fun buildDaggerComponent(): AppComponent {
+        return DaggerAppComponent.builder().systemModule(SystemModule(this)).build()
     }
 }

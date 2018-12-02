@@ -9,8 +9,8 @@ class SPCache @Inject constructor(private val sharedPreferences: SharedPreferenc
 
     companion object {
 
-        private const val PREF_LOCATION = "PREF_LOCATION"
-        private const val DEFAULT_LOCATION = "Cherkasy,ua"
+        internal const val PREF_LOCATION = "PREF_LOCATION"
+        internal const val DEFAULT_LOCATION = "Cherkasy,ua"
     }
 
     var location: String = sharedPreferences.getString(PREF_LOCATION, DEFAULT_LOCATION)!!
