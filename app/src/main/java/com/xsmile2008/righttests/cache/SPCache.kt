@@ -1,9 +1,11 @@
 package com.xsmile2008.righttests.cache
 
 import android.content.SharedPreferences
+import com.xsmile2008.righttests.annotations.OpenClass
 import javax.inject.Inject
 import javax.inject.Singleton
 
+@OpenClass
 @Singleton
 class SPCache @Inject constructor(private val sharedPreferences: SharedPreferences) {
 

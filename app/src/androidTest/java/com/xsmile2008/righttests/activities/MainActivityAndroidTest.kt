@@ -1,12 +1,19 @@
 package com.xsmile2008.righttests.activities
 
+import android.app.Activity
+import android.app.Instrumentation
+import android.content.Intent
+import androidx.arch.core.executor.testing.CountingTaskExecutorRule
 import androidx.lifecycle.MutableLiveData
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.intent.Intents.*
+import androidx.test.espresso.intent.matcher.IntentMatchers.anyIntent
+import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
+import androidx.test.espresso.intent.rule.IntentsTestRule
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
-import androidx.test.rule.ActivityTestRule
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import com.xsmile2008.righttests.BaseAndroidTest
@@ -17,14 +24,18 @@ import com.xsmile2008.righttests.entities.Wind
 import com.xsmile2008.righttests.livedata.ViewAction
 import com.xsmile2008.righttests.network.responses.WeatherResponse
 import com.xsmile2008.righttests.viewmodels.MainViewModel
+import org.hamcrest.CoreMatchers.allOf
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.ArgumentMatchers
+import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mock
 import org.mockito.Mockito.doReturn
 import org.mockito.junit.MockitoJUnitRunner
+import java.util.concurrent.TimeUnit
 
 @RunWith(MockitoJUnitRunner::class)
 class MainActivityAndroidTest : BaseAndroidTest() {
@@ -74,21 +85,19 @@ class MainActivityAndroidTest : BaseAndroidTest() {
     }
 
     @get:Rule
-    val activityRule = ActivityTestRule<MainActivity>(MainActivity::class.java, true, false)
+    val activityRule = IntentsTestRule<MainActivity>(MainActivity::class.java, true, false)
+
+    @get:Rule
+    val countingTaskExecutorRule = CountingTaskExecutorRule()
 
     @Mock
     lateinit var viewModel: MainViewModel
 
     //region LiveData
 
-    @Mock
-    lateinit var viewAction: MutableLiveData<ViewAction>
-
-    @Mock
-    lateinit var showSpinner: MutableLiveData<Boolean>
-
-    @Mock
-    lateinit var weatherData: MutableLiveData<WeatherResponse>
+    private val viewAction = MutableLiveData<ViewAction>()
+    private val showSpinner = MutableLiveData<Boolean>()
+    private val weatherData = MutableLiveData<WeatherResponse>()
     //endregion
 
     @Before
@@ -114,6 +123,7 @@ class MainActivityAndroidTest : BaseAndroidTest() {
     @After
     override fun after() {
         super.after()
+        assertNoUnverifiedIntents()
         //TODO:
 //        verify(viewModel).viewAction
 //        verify(viewModel).showSpinner
@@ -138,9 +148,39 @@ class MainActivityAndroidTest : BaseAndroidTest() {
         //Run 2
         weatherData.postValue(weatherResponse)
 
-        Thread.sleep(5000)
+        countingTaskExecutorRule.drainTasks(10, TimeUnit.SECONDS)
 
         //Verify 2
         onView(withId(R.id.txt_main)).check(matches(withText(weatherResponse.toString())))
+    }
+
+    @Test
+    fun check_locationResponseText_null() {
+        //Verify
+        onView(withId(R.id.txt_main)).check(matches(withText(getResources().getString(R.string.loading))))
+
+        //Run 2
+        weatherData.postValue(null)
+
+        countingTaskExecutorRule.drainTasks(10, TimeUnit.SECONDS)
+
+        //Verify 2
+        onView(withId(R.id.txt_main)).check(matches(withText(getResources().getString(R.string.no_data))))
+    }
+
+    @Test
+    fun check_startActivityForResult() {
+        //Setup
+        intending(anyIntent()).respondWith(Instrumentation.ActivityResult(Activity.RESULT_OK, Intent()))
+
+        //Run
+        viewAction.postValue(ViewAction.Navigate(LocationActivity::class.java, LocationActivity.REQUEST_CODE))
+
+        //Verify
+        intended(allOf(
+                hasComponent(LocationActivity::class.java.name)
+                //TODO: Can't verify request code here. But we can verify it in next line.
+        ))
+        verify(viewModel).onActivityResult(eq(LocationActivity.REQUEST_CODE), eq(Activity.RESULT_OK), ArgumentMatchers.any())
     }
 }

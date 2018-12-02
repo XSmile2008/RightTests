@@ -30,6 +30,24 @@ sealed class ViewAction {
             getArg<Int>(INTENT_FLAGS)?.let { flags = it }
             putExtras(args.toBundle())
         }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as Navigate
+
+            if (activityClass != other.activityClass) return false
+            if (requestCode != other.requestCode) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = activityClass.hashCode()
+            result = 31 * result + (requestCode ?: 0)
+            return result
+        }
     }
 
     class Finish @JvmOverloads constructor(val resultCode: Int? = null) : ViewAction()

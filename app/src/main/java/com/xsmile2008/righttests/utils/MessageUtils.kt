@@ -6,10 +6,12 @@ import android.os.Looper
 import android.widget.Toast
 import androidx.annotation.StringRes
 import com.xsmile2008.righttests.R
+import com.xsmile2008.righttests.annotations.OpenClass
 import retrofit2.HttpException
 import javax.inject.Inject
 import javax.inject.Singleton
 
+@OpenClass
 @Singleton
 class MessageUtils @Inject constructor(private val context: Context) {
 

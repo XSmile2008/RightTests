@@ -26,7 +26,7 @@ class SPCacheTest : BaseTest() {
     @Mock
     lateinit var editor: SharedPreferences.Editor
 
-    private val spCache by lazy { SPCache(sharedPreferences) }
+    private val spCacheImpl by lazy { SPCache(sharedPreferences) }
 
     @Before
     override fun before() {
@@ -58,7 +58,7 @@ class SPCacheTest : BaseTest() {
                 .getString(SPCache.PREF_LOCATION, SPCache.DEFAULT_LOCATION)
 
         //Run
-        assertEquals(LOCATION_KYIV, spCache.location)
+        assertEquals(LOCATION_KYIV, spCacheImpl.location)
 
         //Verify
         verify(sharedPreferences).getString(SPCache.PREF_LOCATION, SPCache.DEFAULT_LOCATION)
@@ -72,7 +72,7 @@ class SPCacheTest : BaseTest() {
                 .getString(SPCache.PREF_LOCATION, SPCache.DEFAULT_LOCATION)
 
         //Run
-        assertEquals(SPCache.DEFAULT_LOCATION, spCache.location)
+        assertEquals(SPCache.DEFAULT_LOCATION, spCacheImpl.location)
 
         //Verify
         verify(sharedPreferences).getString(SPCache.PREF_LOCATION, SPCache.DEFAULT_LOCATION)
@@ -90,14 +90,14 @@ class SPCacheTest : BaseTest() {
         doReturn(true).`when`(editor).commit()
 
         //Run
-        assertEquals(SPCache.DEFAULT_LOCATION, spCache.location)
+        assertEquals(SPCache.DEFAULT_LOCATION, spCacheImpl.location)
 
         //Verify
         inOrder.verify(sharedPreferences).getString(SPCache.PREF_LOCATION, SPCache.DEFAULT_LOCATION)
 
         //Run 2
-        spCache.location = LOCATION_LVIV
-        assertEquals(LOCATION_LVIV, spCache.location)
+        spCacheImpl.location = LOCATION_LVIV
+        assertEquals(LOCATION_LVIV, spCacheImpl.location)
 
         //Verify 2
         inOrder.verify(sharedPreferences).edit()

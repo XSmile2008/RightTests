@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.preference.PreferenceManager
 import com.squareup.moshi.Moshi
+import com.xsmile2008.righttests.coroutines.CoroutineDispatchersProvider
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -38,4 +39,8 @@ class SystemModule(private val application: Application) {
     @Provides
     @Singleton
     internal fun provideMoshi(): Moshi = moshi
+
+    @Provides
+    @Singleton
+    internal fun provideCoroutineDispatchersProvider() = CoroutineDispatchersProvider()
 }

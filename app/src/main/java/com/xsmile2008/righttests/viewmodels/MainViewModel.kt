@@ -7,20 +7,21 @@ import androidx.annotation.MainThread
 import androidx.lifecycle.*
 import com.xsmile2008.righttests.activities.LocationActivity
 import com.xsmile2008.righttests.annotations.OpenClass
+import com.xsmile2008.righttests.coroutines.CoroutineDispatchersProvider
 import com.xsmile2008.righttests.livedata.ViewAction
 import com.xsmile2008.righttests.network.responses.WeatherResponse
 import com.xsmile2008.righttests.repositories.ForecastRepository
 import com.xsmile2008.righttests.utils.MessageUtils
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @OpenClass
 class MainViewModel(
         application: Application,
+        coroutineDispatchersProvider: CoroutineDispatchersProvider,
         private val forecastRepository: ForecastRepository,
         private val messageUtils: MessageUtils
-) : BaseViewModel(application), LifecycleObserver {
+) : BaseViewModel(application, coroutineDispatchersProvider), LifecycleObserver {
 
     //region LiveData
 
@@ -34,21 +35,21 @@ class MainViewModel(
     }
 
     private fun updateData() = launch {
-        withContext(Dispatchers.Main) {
+        withContext(dispatchersProvider.Main) {
             _showSpinner.value = true
         }
         try {
             val weatherResponse = forecastRepository.fetchForecast().await()
-            withContext(Dispatchers.Main) {
+            withContext(dispatchersProvider.Main) {
                 _weatherData.value = weatherResponse
             }
         } catch (e: Exception) {
-            withContext(Dispatchers.Main) {
+            withContext(dispatchersProvider.Main) {
                 _weatherData.value = null
             }
             messageUtils.showError(e)
         }
-        withContext(Dispatchers.Main) {
+        withContext(dispatchersProvider.Main) {
             _showSpinner.value = false
         }
     }

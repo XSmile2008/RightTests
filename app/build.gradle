@@ -68,9 +68,12 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-intents:3.1.1-alpha01'
 
     testImplementation "androidx.arch.core:core-testing:$lifecycleVersion"
+    androidTestImplementation "androidx.arch.core:core-testing:$lifecycleVersion"
 
-    testImplementation 'org.mockito:mockito-android:2.23.4'
+    testImplementation 'org.mockito:mockito-core:2.23.4'
     androidTestImplementation 'org.mockito:mockito-android:2.23.4'
+
+    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.0.0"
     androidTestImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.0.0"
 }
 

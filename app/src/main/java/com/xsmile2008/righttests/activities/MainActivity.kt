@@ -17,7 +17,7 @@ class MainActivity : BaseActivity(), View.OnClickListener {
 
         lifecycle.addObserver(viewModel)
         viewModel.weatherData.observe(this, Observer {
-            txt_main.text = it?.toString() ?: "No data"
+            txt_main.text = it?.toString() ?: getString(R.string.no_data)
         })
 
         setContentView(R.layout.activity_main)
