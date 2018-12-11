@@ -1,5 +1,6 @@
 package com.xsmile2008.righttests.viewmodels
 
+import android.app.Activity
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import com.nhaarman.mockitokotlin2.whenever
@@ -12,6 +13,8 @@ import com.xsmile2008.righttests.livedata.ViewAction
 import com.xsmile2008.righttests.network.responses.WeatherResponse
 import com.xsmile2008.righttests.repositories.ForecastRepository
 import kotlinx.coroutines.CompletableDeferred
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -109,7 +112,7 @@ class MainViewModelTest : BaseTest() {
 
     override fun after() {
         super.after()
-        verifyNoMoreInteractions(observerViewAction, observerShowSpinner, observerWeatherData)
+        verifyNoMoreInteractions(forecastRepository, observerViewAction, observerShowSpinner, observerWeatherData)
     }
 
     @Test
@@ -158,6 +161,49 @@ class MainViewModelTest : BaseTest() {
 
         verify(observerShowSpinner).onChanged(false)
     }
+
+    //region onActivityResult tests
+
+    @Test
+    fun check_onActivityResult_whenHandled() {
+        //Setup
+        val deferred = CompletableDeferred<WeatherResponse>()
+        @Suppress("DeferredResultUnused")
+        doReturn(deferred).whenever(forecastRepository).fetchForecast()
+
+        //Run
+        assertTrue(
+                viewModel.onActivityResult(LocationActivity.REQUEST_CODE, Activity.RESULT_OK, null)
+        )
+        deferred.complete(weatherResponse)
+
+        //Verify
+        verify(observerShowSpinner).onChanged(true)
+
+        @Suppress("DeferredResultUnused")
+        verify(forecastRepository).fetchForecast()
+
+        verify(observerWeatherData).onChanged(weatherResponse)
+
+        verify(observerShowSpinner).onChanged(false)
+    }
+
+    @Test
+    fun check_onActivityResult_RESULT_CANCELED() {
+        //Run
+        assertFalse(
+                viewModel.onActivityResult(LocationActivity.REQUEST_CODE, Activity.RESULT_CANCELED, null)
+        )
+    }
+
+    @Test
+    fun check_onActivityResult_wrongRequestCode() {
+        //Run
+        assertFalse(
+                viewModel.onActivityResult(-1, Activity.RESULT_OK, null)
+        )
+    }
+    //endregion
 
     //region onChangeLocationClicked tests
 

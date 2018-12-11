@@ -25,6 +25,7 @@ class LocationViewModel(
     //endregion
 
     init {
+        //TODO: move this to onCreate()
         _location.value = forecastRepository.location
     }
 
