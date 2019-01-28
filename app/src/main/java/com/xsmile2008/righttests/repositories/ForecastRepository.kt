@@ -8,6 +8,7 @@ import com.xsmile2008.righttests.network.ApiClient
 import com.xsmile2008.righttests.network.responses.WeatherResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -21,8 +22,7 @@ class ForecastRepository @Inject constructor(
         private val spCache: SPCache
 ) : CoroutineScope {
 
-    override val coroutineContext: CoroutineContext
-        get() = dispatchersProvider.IO
+    override val coroutineContext: CoroutineContext = dispatchersProvider.IO + SupervisorJob()
 
     var location
         get() = spCache.location

@@ -9,7 +9,8 @@ import com.xsmile2008.righttests.coroutines.CoroutineDispatchersProvider
 import com.xsmile2008.righttests.livedata.SingleLiveEvent
 import com.xsmile2008.righttests.livedata.ViewAction
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlin.coroutines.CoroutineContext
 
 @OpenClass
@@ -18,8 +19,8 @@ abstract class BaseViewModel(
         protected val dispatchersProvider: CoroutineDispatchersProvider
 ) : AndroidViewModel(application), CoroutineScope {
 
-    override val coroutineContext: CoroutineContext
-        get() = dispatchersProvider.Default
+    private val job: Job = SupervisorJob()
+    override val coroutineContext: CoroutineContext = dispatchersProvider.Default + job
 
     //region LiveData
 
@@ -33,7 +34,7 @@ abstract class BaseViewModel(
     //endregion
 
     override fun onCleared() {
-        coroutineContext.cancel()
+        job.cancel()
         super.onCleared()
     }
 }
