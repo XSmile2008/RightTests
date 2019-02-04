@@ -38,7 +38,7 @@ dependencies {
 
     //AndroidX
     implementation 'androidx.appcompat:appcompat:1.0.2'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.0-alpha2'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.0-alpha3'
     implementation "androidx.lifecycle:lifecycle-extensions:$lifecycleVersion"
 
     //Dagger
@@ -62,10 +62,10 @@ dependencies {
     //Tests
     testImplementation 'junit:junit:4.12'
 
-    androidTestImplementation 'androidx.test:runner:1.1.1-alpha01'
-    androidTestImplementation 'androidx.test:rules:1.1.1-alpha01'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1-alpha01'
-    androidTestImplementation 'androidx.test.espresso:espresso-intents:3.1.1-alpha01'
+    androidTestImplementation 'androidx.test:runner:1.1.1'
+    androidTestImplementation 'androidx.test:rules:1.1.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-intents:3.1.1'
 
     testImplementation "androidx.arch.core:core-testing:$lifecycleVersion"
     androidTestImplementation "androidx.arch.core:core-testing:$lifecycleVersion"
