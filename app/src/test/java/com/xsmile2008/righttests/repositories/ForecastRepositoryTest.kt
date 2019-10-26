@@ -78,7 +78,7 @@ class ForecastRepositoryTest : BaseTest() {
     }
 
     @Test
-    fun check_fetchForecast_success() {
+    fun check_fetchForecast_success() = runBlocking<Unit> {
         //Setup
         doReturn(LOCATION).whenever(spCache).location
         val call: Call<*> = mock(Call::class.java)
@@ -86,9 +86,7 @@ class ForecastRepositoryTest : BaseTest() {
         doReturn(Response.success(weatherResponse)).whenever(call).execute()
 
         //Run
-        runBlocking {
-            assertEquals(weatherResponse, repository.fetchForecast().await())
-        }
+        assertEquals(weatherResponse, repository.fetchForecast())
 
         //Verify
         verify(weatherService).getCurrentWeather(LOCATION)
@@ -105,7 +103,7 @@ class ForecastRepositoryTest : BaseTest() {
         //Run
         runBlocking {
             try {
-                repository.fetchForecast().await()
+                repository.fetchForecast()
                 fail()
             } catch (e: Exception) {
                 assertTrue(e is HttpException && e.code() == 500)

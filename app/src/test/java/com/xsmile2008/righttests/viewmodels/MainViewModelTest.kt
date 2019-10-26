@@ -12,7 +12,8 @@ import com.xsmile2008.righttests.entities.Wind
 import com.xsmile2008.righttests.livedata.ViewAction
 import com.xsmile2008.righttests.network.responses.WeatherResponse
 import com.xsmile2008.righttests.repositories.ForecastRepository
-import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -24,7 +25,6 @@ import org.mockito.ArgumentMatchers
 import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.junit.MockitoJUnitRunner
-import java.io.IOException
 
 @RunWith(MockitoJUnitRunner.Silent::class)
 class MainViewModelTest : BaseTest() {
@@ -110,81 +110,65 @@ class MainViewModelTest : BaseTest() {
         viewModel.weatherData.observeForever(observerWeatherData)
     }
 
+    @After
     override fun after() {
         super.after()
-        verifyNoMoreInteractions(forecastRepository, observerViewAction, observerShowSpinner, observerWeatherData)
+        verifyNoMoreInteractions(
+                forecastRepository,
+                observerViewAction,
+                observerShowSpinner,
+                observerWeatherData
+        )
     }
 
     @Test
-    fun check_onCreate_successfulLoadData() {
+    fun check_onCreate_successfulLoadData() = runBlocking {
         //Setup
-        val deferred = CompletableDeferred<WeatherResponse>()
-        @Suppress("DeferredResultUnused")
-        doReturn(deferred).whenever(forecastRepository).fetchForecast()
+        doReturn(weatherResponse).whenever(forecastRepository).fetchForecast()
 
         //Run
         viewModel.onCreate()
-        deferred.complete(weatherResponse)
 
         //Verify
         verify(observerShowSpinner).onChanged(true)
-
-        @Suppress("DeferredResultUnused")
         verify(forecastRepository).fetchForecast()
-
         verify(observerWeatherData).onChanged(weatherResponse)
-
         verify(observerShowSpinner).onChanged(false)
     }
 
     @Test
-    fun check_onCreate_noInternet() {
+    fun check_onCreate_noInternet() = runBlocking {
         //Setup
-        val deferred = CompletableDeferred<WeatherResponse>()
-        @Suppress("DeferredResultUnused")
-        doReturn(deferred).whenever(forecastRepository).fetchForecast()
-
-        val ioException = IOException("No internet")
+        val exception = RuntimeException("No internet")
+        doThrow(exception).whenever(forecastRepository).fetchForecast()
 
         //Run
         viewModel.onCreate()
-        deferred.completeExceptionally(ioException)
 
         //Verify
         verify(observerShowSpinner).onChanged(true)
-
-        @Suppress("DeferredResultUnused")
         verify(forecastRepository).fetchForecast()
-
         verify(observerWeatherData).onChanged(null)
-        verify(messageUtils).showError(ioException)
-
+        verify(messageUtils).showError(exception)
         verify(observerShowSpinner).onChanged(false)
     }
 
     //region onActivityResult tests
 
     @Test
-    fun check_onActivityResult_whenHandled() {
+    fun check_onActivityResult_whenHandled() = runBlocking {
         //Setup
-        val deferred = CompletableDeferred<WeatherResponse>()
-        @Suppress("DeferredResultUnused")
-        doReturn(deferred).whenever(forecastRepository).fetchForecast()
+        doReturn(weatherResponse).whenever(forecastRepository).fetchForecast()
 
         //Run
         assertTrue(
                 viewModel.onActivityResult(LocationActivity.REQUEST_CODE, Activity.RESULT_OK, null)
         )
-        deferred.complete(weatherResponse)
 
         //Verify
         verify(observerShowSpinner).onChanged(true)
-
-        @Suppress("DeferredResultUnused")
         verify(forecastRepository).fetchForecast()
-
         verify(observerWeatherData).onChanged(weatherResponse)
-
         verify(observerShowSpinner).onChanged(false)
     }
 
