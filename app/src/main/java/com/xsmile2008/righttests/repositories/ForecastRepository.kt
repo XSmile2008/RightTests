@@ -6,10 +6,7 @@ import com.xsmile2008.righttests.coroutines.CoroutineDispatchersProvider
 import com.xsmile2008.righttests.extensions.await
 import com.xsmile2008.righttests.network.ApiClient
 import com.xsmile2008.righttests.network.responses.WeatherResponse
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.async
+import kotlinx.coroutines.*
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.CoroutineContext
@@ -18,7 +15,7 @@ import kotlin.coroutines.CoroutineContext
 @Singleton
 class ForecastRepository @Inject constructor(
         private val apiClient: ApiClient,
-        private val dispatchersProvider: CoroutineDispatchersProvider,
+        dispatchersProvider: CoroutineDispatchersProvider,
         private val spCache: SPCache
 ) : CoroutineScope {
 
@@ -30,7 +27,7 @@ class ForecastRepository @Inject constructor(
             spCache.location = value
         }
 
-    fun fetchForecast(): Deferred<WeatherResponse> = async {
+    suspend fun fetchForecast(): WeatherResponse = withContext(coroutineContext){
         apiClient.weatherService.getCurrentWeather(location).await()
     }
 }

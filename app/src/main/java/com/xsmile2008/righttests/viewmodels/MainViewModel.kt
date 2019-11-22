@@ -39,7 +39,7 @@ class MainViewModel(
             _showSpinner.value = true
         }
         try {
-            val weatherResponse = forecastRepository.fetchForecast().await()
+            val weatherResponse = forecastRepository.fetchForecast()
             withContext(dispatchersProvider.Main) {
                 _weatherData.value = weatherResponse
             }

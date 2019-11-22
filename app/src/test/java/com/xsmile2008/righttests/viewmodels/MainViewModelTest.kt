@@ -3,7 +3,7 @@ package com.xsmile2008.righttests.viewmodels
 import android.app.Activity
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
-import com.nhaarman.mockitokotlin2.whenever
+import com.nhaarman.mockitokotlin2.*
 import com.xsmile2008.righttests.BaseTest
 import com.xsmile2008.righttests.activities.LocationActivity
 import com.xsmile2008.righttests.entities.MainWeatherInfo
@@ -12,7 +12,7 @@ import com.xsmile2008.righttests.entities.Wind
 import com.xsmile2008.righttests.livedata.ViewAction
 import com.xsmile2008.righttests.network.responses.WeatherResponse
 import com.xsmile2008.righttests.repositories.ForecastRepository
-import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -20,11 +20,8 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers
-import org.mockito.Mock
-import org.mockito.Mockito.*
+import org.mockito.ArgumentMatcher
 import org.mockito.junit.MockitoJUnitRunner
-import java.io.IOException
 
 @RunWith(MockitoJUnitRunner.Silent::class)
 class MainViewModelTest : BaseTest() {
@@ -78,18 +75,12 @@ class MainViewModelTest : BaseTest() {
 
     //region Observers
 
-    @Mock
-    private lateinit var observerViewAction: Observer<ViewAction>
-
-    @Mock
-    private lateinit var observerShowSpinner: Observer<Boolean>
-
-    @Mock
-    private lateinit var observerWeatherData: Observer<WeatherResponse>
+    private val observerViewAction: Observer<ViewAction> = mock()
+    private val observerShowSpinner: Observer<Boolean> = mock()
+    private val observerWeatherData: Observer<WeatherResponse> = mock()
     //endregion
 
-    @Mock
-    lateinit var forecastRepository: ForecastRepository
+    private val forecastRepository: ForecastRepository = mock()
 
     private val viewModel by lazy {
         MainViewModel(
@@ -116,15 +107,12 @@ class MainViewModelTest : BaseTest() {
     }
 
     @Test
-    fun check_onCreate_successfulLoadData() {
+    fun check_onCreate_successfulLoadData() = runBlocking {
         //Setup
-        val deferred = CompletableDeferred<WeatherResponse>()
-        @Suppress("DeferredResultUnused")
-        doReturn(deferred).whenever(forecastRepository).fetchForecast()
+        doReturn(weatherResponse).whenever(forecastRepository).fetchForecast()
 
         //Run
         viewModel.onCreate()
-        deferred.complete(weatherResponse)
 
         //Verify
         verify(observerShowSpinner).onChanged(true)
@@ -138,26 +126,20 @@ class MainViewModelTest : BaseTest() {
     }
 
     @Test
-    fun check_onCreate_noInternet() {
+    fun check_onCreate_noInternet() = runBlocking {
         //Setup
-        val deferred = CompletableDeferred<WeatherResponse>()
-        @Suppress("DeferredResultUnused")
-        doReturn(deferred).whenever(forecastRepository).fetchForecast()
-
-        val ioException = IOException("No internet")
+        doThrow(RuntimeException("No internet")).whenever(forecastRepository).fetchForecast()
 
         //Run
         viewModel.onCreate()
-        deferred.completeExceptionally(ioException)
 
         //Verify
         verify(observerShowSpinner).onChanged(true)
 
-        @Suppress("DeferredResultUnused")
         verify(forecastRepository).fetchForecast()
 
         verify(observerWeatherData).onChanged(null)
-        verify(messageUtils).showError(ioException)
+        verify(messageUtils).showError(argThat<RuntimeException>(ArgumentMatcher { it.message == "No internet" }))
 
         verify(observerShowSpinner).onChanged(false)
     }
@@ -165,17 +147,14 @@ class MainViewModelTest : BaseTest() {
     //region onActivityResult tests
 
     @Test
-    fun check_onActivityResult_whenHandled() {
+    fun check_onActivityResult_whenHandled() = runBlocking {
         //Setup
-        val deferred = CompletableDeferred<WeatherResponse>()
-        @Suppress("DeferredResultUnused")
-        doReturn(deferred).whenever(forecastRepository).fetchForecast()
+        doReturn(weatherResponse).whenever(forecastRepository).fetchForecast()
 
         //Run
         assertTrue(
                 viewModel.onActivityResult(LocationActivity.REQUEST_CODE, Activity.RESULT_OK, null)
         )
-        deferred.complete(weatherResponse)
 
         //Verify
         verify(observerShowSpinner).onChanged(true)
@@ -230,11 +209,11 @@ class MainViewModelTest : BaseTest() {
         //Verify
         verify(observerViewAction).onChanged(
                 //In case if we not overridden hashCode() and equals() for ViewAction.Navigate
-                ArgumentMatchers.argThat {
-                    it is ViewAction.Navigate
-                            && it.activityClass == LocationActivity::class.java
-                            && it.requestCode == LocationActivity.REQUEST_CODE
-                            && it.args.isEmpty()
+                argThat {
+                    this is ViewAction.Navigate
+                            && this.activityClass == LocationActivity::class.java
+                            && this.requestCode == LocationActivity.REQUEST_CODE
+                            && this.args.isEmpty()
                 }
         )
     }

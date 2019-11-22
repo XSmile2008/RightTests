@@ -78,7 +78,7 @@ class ForecastRepositoryTest : BaseTest() {
     }
 
     @Test
-    fun check_fetchForecast_success() {
+    fun check_fetchForecast_success() = runBlocking<Unit> {
         //Setup
         doReturn(LOCATION).whenever(spCache).location
         val call: Call<*> = mock(Call::class.java)
@@ -86,16 +86,14 @@ class ForecastRepositoryTest : BaseTest() {
         doReturn(Response.success(weatherResponse)).whenever(call).execute()
 
         //Run
-        runBlocking {
-            assertEquals(weatherResponse, repository.fetchForecast().await())
-        }
+        assertEquals(weatherResponse, repository.fetchForecast())
 
         //Verify
         verify(weatherService).getCurrentWeather(LOCATION)
     }
 
     @Test
-    fun check_fetchForecast_500() {
+    fun check_fetchForecast_500() = runBlocking<Unit> {
         //Setup
         doReturn(LOCATION).whenever(spCache).location
         val call: Call<*> = mock(Call::class.java)
@@ -103,13 +101,11 @@ class ForecastRepositoryTest : BaseTest() {
         doReturn(Response.error<ResponseBody>(500, mock(ResponseBody::class.java))).whenever(call).execute()
 
         //Run
-        runBlocking {
-            try {
-                repository.fetchForecast().await()
-                fail()
-            } catch (e: Exception) {
-                assertTrue(e is HttpException && e.code() == 500)
-            }
+        try {
+            repository.fetchForecast()
+            fail()
+        } catch (e: Exception) {
+            assertTrue(e is HttpException && e.code() == 500)
         }
 
         //Verify

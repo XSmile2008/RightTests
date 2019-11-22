@@ -7,7 +7,6 @@ import com.xsmile2008.righttests.cache.SPCache
 import com.xsmile2008.righttests.coroutines.TestCoroutineDispatchersProvider
 import com.xsmile2008.righttests.network.ApiClient
 import com.xsmile2008.righttests.network.services.WeatherService
-import com.xsmile2008.righttests.repositories.ForecastRepository
 import com.xsmile2008.righttests.utils.MessageUtils
 import org.mockito.Mock
 
