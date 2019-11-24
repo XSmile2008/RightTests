@@ -15,7 +15,7 @@ import kotlin.coroutines.CoroutineContext
 @Singleton
 class ForecastRepository @Inject constructor(
         private val apiClient: ApiClient,
-        private val dispatchersProvider: CoroutineDispatchersProvider,
+        dispatchersProvider: CoroutineDispatchersProvider,
         private val spCache: SPCache
 ) : CoroutineScope {
 

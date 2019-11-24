@@ -3,7 +3,7 @@ package com.xsmile2008.righttests.viewmodels
 import android.app.Activity
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
-import com.nhaarman.mockitokotlin2.whenever
+import com.nhaarman.mockitokotlin2.*
 import com.xsmile2008.righttests.BaseTest
 import com.xsmile2008.righttests.activities.LocationActivity
 import com.xsmile2008.righttests.entities.MainWeatherInfo
@@ -21,9 +21,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers
-import org.mockito.Mock
-import org.mockito.Mockito.*
+import org.mockito.ArgumentMatcher
 import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner.Silent::class)
@@ -78,18 +76,12 @@ class MainViewModelTest : BaseTest() {
 
     //region Observers
 
-    @Mock
-    private lateinit var observerViewAction: Observer<ViewAction>
-
-    @Mock
-    private lateinit var observerShowSpinner: Observer<Boolean>
-
-    @Mock
-    private lateinit var observerWeatherData: Observer<WeatherResponse>
+    private val observerViewAction: Observer<ViewAction> = mock()
+    private val observerShowSpinner: Observer<Boolean> = mock()
+    private val observerWeatherData: Observer<WeatherResponse> = mock()
     //endregion
 
-    @Mock
-    lateinit var forecastRepository: ForecastRepository
+    private val forecastRepository: ForecastRepository = mock()
 
     private val viewModel by lazy {
         MainViewModel(
@@ -139,17 +131,18 @@ class MainViewModelTest : BaseTest() {
     @Test
     fun check_onCreate_noInternet() = runBlocking {
         //Setup
-        val exception = RuntimeException("No internet")
-        doThrow(exception).whenever(forecastRepository).fetchForecast()
+        doThrow(RuntimeException("No internet")).whenever(forecastRepository).fetchForecast()
 
         //Run
         viewModel.onCreate()
 
         //Verify
         verify(observerShowSpinner).onChanged(true)
+
         verify(forecastRepository).fetchForecast()
         verify(observerWeatherData).onChanged(null)
-        verify(messageUtils).showError(exception)
+        verify(messageUtils).showError(argThat<RuntimeException>(ArgumentMatcher { it.message == "No internet" }))
+
         verify(observerShowSpinner).onChanged(false)
     }
 
@@ -214,11 +207,11 @@ class MainViewModelTest : BaseTest() {
         //Verify
         verify(observerViewAction).onChanged(
                 //In case if we not overridden hashCode() and equals() for ViewAction.Navigate
-                ArgumentMatchers.argThat {
-                    it is ViewAction.Navigate
-                            && it.activityClass == LocationActivity::class.java
-                            && it.requestCode == LocationActivity.REQUEST_CODE
-                            && it.args.isEmpty()
+                argThat {
+                    this is ViewAction.Navigate
+                            && this.activityClass == LocationActivity::class.java
+                            && this.requestCode == LocationActivity.REQUEST_CODE
+                            && this.args.isEmpty()
                 }
         )
     }
