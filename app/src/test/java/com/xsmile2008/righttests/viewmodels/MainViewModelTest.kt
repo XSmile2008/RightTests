@@ -13,10 +13,8 @@ import com.xsmile2008.righttests.livedata.ViewAction
 import com.xsmile2008.righttests.network.responses.WeatherResponse
 import com.xsmile2008.righttests.repositories.ForecastRepository
 import kotlinx.coroutines.runBlocking
-import org.junit.After
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
@@ -76,12 +74,12 @@ class MainViewModelTest : BaseTest() {
 
     //region Observers
 
-    private val observerViewAction: Observer<ViewAction> = mock()
-    private val observerShowSpinner: Observer<Boolean> = mock()
-    private val observerWeatherData: Observer<WeatherResponse> = mock()
+    private val observerViewAction: Observer<ViewAction> = autoverified(mock())
+    private val observerShowSpinner: Observer<Boolean> = autoverified(mock())
+    private val observerWeatherData: Observer<WeatherResponse> = autoverified(mock())
     //endregion
 
-    private val forecastRepository: ForecastRepository = mock()
+    private val forecastRepository: ForecastRepository = autoverified(mock())
 
     private val viewModel by lazy {
         MainViewModel(
@@ -89,28 +87,11 @@ class MainViewModelTest : BaseTest() {
                 dispatchersProvider,
                 forecastRepository,
                 messageUtils
-        )
-    }
-
-    @Before
-    override fun before() {
-        super.before()
-
-        //Subscribe observers
-        viewModel.viewAction.observeForever(observerViewAction)
-        viewModel.showSpinner.observeForever(observerShowSpinner)
-        viewModel.weatherData.observeForever(observerWeatherData)
-    }
-
-    @After
-    override fun after() {
-        super.after()
-        verifyNoMoreInteractions(
-                forecastRepository,
-                observerViewAction,
-                observerShowSpinner,
-                observerWeatherData
-        )
+        ).apply {
+            viewAction.observeForever(observerViewAction)
+            showSpinner.observeForever(observerShowSpinner)
+            weatherData.observeForever(observerWeatherData)
+        }
     }
 
     @Test

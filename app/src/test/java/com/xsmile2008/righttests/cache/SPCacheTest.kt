@@ -1,14 +1,11 @@
 package com.xsmile2008.righttests.cache
 
 import android.content.SharedPreferences
+import com.nhaarman.mockitokotlin2.*
 import com.xsmile2008.righttests.BaseTest
-import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mock
-import org.mockito.Mockito.*
 import org.mockito.junit.MockitoJUnitRunner
 
 
@@ -20,33 +17,25 @@ class SPCacheTest : BaseTest() {
         const val LOCATION_LVIV = "Lviv,ua"
     }
 
-    @Mock
-    lateinit var sharedPreferences: SharedPreferences
-
-    @Mock
-    lateinit var editor: SharedPreferences.Editor
+    private val editor: SharedPreferences.Editor = autoverified(
+            mock {
+                on { putBoolean(any(), any()) } doReturn mock
+                on { putInt(any(), any()) } doReturn mock
+                on { putLong(any(), any()) } doReturn mock
+                on { putFloat(any(), any()) } doReturn mock
+                on { putString(any(), any()) } doReturn mock
+                on { putStringSet(any(), any()) } doReturn mock
+                on { remove(any()) } doReturn mock
+                on { commit() } doReturn true
+            }
+    )
+    private val sharedPreferences: SharedPreferences = autoverified(
+            mock {
+                on { edit() } doReturn editor
+            }
+    )
 
     private val spCacheImpl by lazy { SPCache(sharedPreferences) }
-
-    @Before
-    override fun before() {
-        super.before()
-        doReturn(editor).`when`(sharedPreferences).edit()
-        doReturn(editor).`when`(editor).clear()
-        doReturn(editor).`when`(editor).putBoolean(anyString(), anyBoolean())
-        doReturn(editor).`when`(editor).putInt(anyString(), anyInt())
-        doReturn(editor).`when`(editor).putLong(anyString(), anyLong())
-        doReturn(editor).`when`(editor).putFloat(anyString(), anyFloat())
-        doReturn(editor).`when`(editor).putString(anyString(), anyString())
-        doReturn(editor).`when`(editor).putStringSet(anyString(), any())
-        doReturn(true).`when`(editor).commit()
-    }
-
-    @After
-    override fun after() {
-        super.after()
-        verifyNoMoreInteractions(sharedPreferences, editor)
-    }
 
     //region location property tests
 
@@ -54,7 +43,7 @@ class SPCacheTest : BaseTest() {
     fun check_location_get_hasValue() {
         //Setup
         doReturn(LOCATION_KYIV)
-                .`when`(sharedPreferences)
+                .whenever(sharedPreferences)
                 .getString(SPCache.PREF_LOCATION, SPCache.DEFAULT_LOCATION)
 
         //Run
@@ -68,7 +57,7 @@ class SPCacheTest : BaseTest() {
     fun check_location_get_defaultValue() {
         //Setup
         doReturn(SPCache.DEFAULT_LOCATION)
-                .`when`(sharedPreferences)
+                .whenever(sharedPreferences)
                 .getString(SPCache.PREF_LOCATION, SPCache.DEFAULT_LOCATION)
 
         //Run
@@ -84,10 +73,10 @@ class SPCacheTest : BaseTest() {
         val inOrder = inOrder(sharedPreferences, editor)
 
         doReturn(SPCache.DEFAULT_LOCATION)
-                .`when`(sharedPreferences)
+                .whenever(sharedPreferences)
                 .getString(SPCache.PREF_LOCATION, SPCache.DEFAULT_LOCATION)
 
-        doReturn(true).`when`(editor).commit()
+        doReturn(true).whenever(editor).commit()
 
         //Run
         assertEquals(SPCache.DEFAULT_LOCATION, spCacheImpl.location)

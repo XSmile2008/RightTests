@@ -1,8 +1,6 @@
 package com.xsmile2008.righttests.repositories
 
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.whenever
+import com.nhaarman.mockitokotlin2.*
 import com.xsmile2008.righttests.BaseTest
 import com.xsmile2008.righttests.entities.MainWeatherInfo
 import com.xsmile2008.righttests.entities.Weather
@@ -11,11 +9,8 @@ import com.xsmile2008.righttests.network.responses.WeatherResponse
 import kotlinx.coroutines.runBlocking
 import okhttp3.ResponseBody
 import org.junit.Assert.*
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.anyString
-import org.mockito.Mockito.mock
 import org.mockito.junit.MockitoJUnitRunner
 import retrofit2.Call
 import retrofit2.HttpException
@@ -72,23 +67,20 @@ class ForecastRepositoryTest : BaseTest() {
 
     private val repository by lazy { ForecastRepository(apiClient, dispatchersProvider, spCache) }
 
-    @Before
-    override fun before() {
-        super.before()
-    }
-
     @Test
     fun check_fetchForecast_success() = runBlocking<Unit> {
         //Setup
         doReturn(LOCATION).whenever(spCache).location
-        val call: Call<*> = mock(Call::class.java)
-        doReturn(call).whenever(weatherService).getCurrentWeather(anyString())
+        val call: Call<*> = mock()
+        doReturn(call).whenever(weatherService).getCurrentWeather(any())
         doReturn(Response.success(weatherResponse)).whenever(call).execute()
 
         //Run
         assertEquals(weatherResponse, repository.fetchForecast())
 
         //Verify
+        verify(spCache).location
+        verify(apiClient).weatherService
         verify(weatherService).getCurrentWeather(LOCATION)
     }
 
@@ -96,9 +88,9 @@ class ForecastRepositoryTest : BaseTest() {
     fun check_fetchForecast_500() = runBlocking<Unit> {
         //Setup
         doReturn(LOCATION).whenever(spCache).location
-        val call: Call<*> = mock(Call::class.java)
-        doReturn(call).whenever(weatherService).getCurrentWeather(anyString())
-        doReturn(Response.error<ResponseBody>(500, mock(ResponseBody::class.java))).whenever(call).execute()
+        val call: Call<*> = mock()
+        doReturn(call).whenever(weatherService).getCurrentWeather(any())
+        doReturn(Response.error<ResponseBody>(500, mock())).whenever(call).execute()
 
         //Run
         try {
@@ -109,6 +101,8 @@ class ForecastRepositoryTest : BaseTest() {
         }
 
         //Verify
+        verify(spCache).location
+        verify(apiClient).weatherService
         verify(weatherService).getCurrentWeather(LOCATION)
     }
 }

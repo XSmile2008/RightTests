@@ -6,17 +6,14 @@ import com.nhaarman.mockitokotlin2.*
 import com.xsmile2008.righttests.BaseTest
 import com.xsmile2008.righttests.R
 import com.xsmile2008.righttests.livedata.ViewAction
+import com.xsmile2008.righttests.mockStrings
 import com.xsmile2008.righttests.repositories.ForecastRepository
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers.anyInt
-import org.mockito.Mock
 import org.mockito.junit.MockitoJUnitRunner
-import java.util.*
 
 @RunWith(MockitoJUnitRunner.Silent::class)
 class LocationViewModelTest : BaseTest() {
@@ -31,18 +28,12 @@ class LocationViewModelTest : BaseTest() {
 
     //region Observers
 
-    @Mock
-    private lateinit var observerViewAction: Observer<ViewAction>
-
-    @Mock
-    private lateinit var observerShowSpinner: Observer<Boolean>
-
-    @Mock
-    private lateinit var observerLocation: Observer<String>
+    private val observerViewAction: Observer<ViewAction> = autoverified(mock())
+    private val observerShowSpinner: Observer<Boolean> = autoverified(mock())
+    private val observerLocation: Observer<String> = autoverified(mock())
     //endregion
 
-    @Mock
-    lateinit var forecastRepository: ForecastRepository
+    private val forecastRepository: ForecastRepository = autoverified(mock())
 
     private val viewModel by lazy {
         LocationViewModel(
@@ -54,25 +45,8 @@ class LocationViewModelTest : BaseTest() {
     }
 
     @Before
-    override fun before() {
-        super.before()
-        //TODO: move this to BaseTest?
-        doAnswer {
-            Arrays.toString(it.arguments)
-        }.whenever(application).getString(anyInt())
-        doAnswer {
-            Arrays.toString(it.arguments)
-        }.whenever(application).getString(anyInt(), any())
-    }
-
-    @After
-    override fun after() {
-        super.after()
-        verifyNoMoreInteractions(
-                observerViewAction,
-                observerShowSpinner,
-                observerLocation
-        )
+    fun before() {
+        application.mockStrings()//Custom extension. Look at it in details.
     }
 
     private fun setupObservers() {

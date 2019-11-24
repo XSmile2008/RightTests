@@ -14,13 +14,9 @@ open class BaseAndroidTest {
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
-
+    
     open fun before() {
         getComponent().inject(this)
-    }
-
-    open fun after() {
-
     }
 
     @Suppress("MemberVisibilityCanBePrivate")
